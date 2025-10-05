@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p /etc/power-toggle-switch
+mkdir -p /opt/power-toggle-switch

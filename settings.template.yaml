@@ -1,0 +1,4 @@
+log_level: INFO
+bind_address: 0.0.0.0
+udp_port: 5151
+shutdown_timeout: 180

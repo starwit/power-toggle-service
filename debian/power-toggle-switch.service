@@ -1,0 +1,13 @@
+[Unit]
+Description=Power Toggle Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/power-toggle-switch
+ExecStart=/usr/local/bin/power-toggle-switch
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

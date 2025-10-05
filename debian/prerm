@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+SERVICE_NAME=power-toggle-switch
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+
+    # Stop the service
+    systemctl stop $SERVICE_NAME.service
+
+    # Disable the service
+    systemctl disable $SERVICE_NAME.service
+
+    # Remove the service file
+    rm -f /etc/systemd/system/$SERVICE_NAME.service
+
+    systemctl daemon-reload
+
+    # Remove the wrapper script
+    rm -f /usr/local/bin/$SERVICE_NAME
+    
+    # Remove application directory
+    rm -rf /opt/$SERVICE_NAME
+
+    # Remove config files directory
+    rm -rf /etc/$SERVICE_NAME
+fi
+
+#DEBHELPER#
+
+exit 0

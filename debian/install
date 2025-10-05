@@ -1,0 +1,7 @@
+settings.yaml /etc/power-toggle-switch
+main.py /opt/power-toggle-switch
+
+requirements.txt /opt/power-toggle-switch
+power_toggle_switch /opt/power-toggle-switch
+
+debian/power-toggle-switch.service /usr/lib/systemd/system/

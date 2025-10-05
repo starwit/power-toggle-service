@@ -1,0 +1,11 @@
+__pycache__
+.venv
+cache
+.vscode
+*.yaml
+!settings.template.yaml
+!.github/workflows/*.yaml
+target
+dist
+.env
+env.sh

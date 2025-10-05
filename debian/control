@@ -1,0 +1,16 @@
+Source: power-toggle-switch
+Section: python
+Priority: optional
+Maintainer: Markus Zarbock <foss@starwit.de>
+Build-Depends: debhelper (>= 11), dh-python, python3-all (>= 3.10), python3-setuptools, python3-pip
+Standards-Version: 4.1.3
+Homepage: https://starwit.de
+
+Package: power-toggle-switch
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}, python3-all (>= 3.10), python3-pip,
+        python3-venv
+XB-Python-Version: ${python:Versions}
+Description: Power toggle service
+ This is a service, that can turn power for a server off. It listens on a
+ network socket for incoming requests. 
