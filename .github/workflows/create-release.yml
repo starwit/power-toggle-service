@@ -58,6 +58,7 @@ jobs:
 
       - name: commit new version
         run: |
+          git status
           git config --global user.email "code@starwit.de"
           git config --global user.name "Starwit"
           git remote set-url --push origin $REPO_URL
@@ -66,7 +67,7 @@ jobs:
           if [ ! -z "$modifications" ]
           then
             echo "modifications found: $modifications"
-            git commit -m "modified project version" ./pyproject.toml
+            git commit -m "modified project version" ./pyproject.toml ./debian/changelog
             git push
           fi 
         env:
