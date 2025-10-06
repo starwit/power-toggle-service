@@ -1,8 +1,8 @@
 .PHONY: install build-deb clean
 
 export PACKAGE_NAME=power-toggle-switch
+RELEASEMSG = ${RELEASE_MSG}
 
-RELEASEMSG := Automated build release
 EMAIL      := foss@starwit.de
 NAME       := Build Bot
 
