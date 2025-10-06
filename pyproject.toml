@@ -12,15 +12,11 @@ python = "^3.10"
 pydantic = "^2.11.9"
 pydantic-settings = "^2.0.3"
 pyaml = "^25.7.0"
+pytest = "8.4.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.1"
 testcontainers = "^4.4.1"
-
-[tool.pytest.ini_options]
-addopts = [
-    "--ignore=tests/integration",
-]
 
 [build-system]
 requires = ["poetry-core"]
