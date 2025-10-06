@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
+User=powertoggle
 WorkingDirectory=/opt/power-toggle-switch
 ExecStart=/usr/local/bin/power-toggle-switch
 Restart=always

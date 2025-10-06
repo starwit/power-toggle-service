@@ -24,6 +24,12 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
 
     # Remove config files directory
     rm -rf /etc/$SERVICE_NAME
+
+    # remove user
+    userdel powertoggle
+
+    # remove visudo file
+    rm -f /etc/sudoers.d/$SERVICE_NAME
 fi
 
 #DEBHELPER#

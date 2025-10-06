@@ -2,3 +2,14 @@
 
 mkdir -p /etc/power-toggle-switch
 mkdir -p /opt/power-toggle-switch
+
+useradd -M powertoggle
+usermod -L powertoggle
+
+mkdir -p /etc/sudoers.d
+
+cat <<EOF >/etc/sudoers.d/power-toggle-switch
+powertoggle ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot, /sbin/poweroff
+EOF
+
+chmod 440 /etc/sudoers.d/power-toggle-switch

@@ -9,7 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^2.11.9"
+pydantic = "^2.11.10"
 pydantic-settings = "^2.0.3"
 pyaml = "^25.7.0"
 pytest = "8.4.2"
