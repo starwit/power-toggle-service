@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "power-toggle-switch"
-version = "0.0.1"
+version = "0.0.2"
 package-mode = false
 description = "A power toggle service"
 authors = ["ztarbug <foss@starwit.de>"]
