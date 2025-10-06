@@ -51,7 +51,7 @@ jobs:
 
       - name: get last commit message and update APT changelog
         run: |
-          RELEASE_MSG=$(git log -1 --pretty=%B)
+          RELEASE_MSG="$(git log -1 --pretty=%B)"
           echo $RELEASE_MSG
           bash -c "export RELEASEMSG=${RELEASE_MSG}; make set-version"
           cat debian/changelog

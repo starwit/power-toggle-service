@@ -18,6 +18,7 @@ test: install
 set-version:
 	$(eval VERSION := $(shell poetry version -s))
 	@echo $(VERSION)
+	@echo $(RELEASEMSG)
 	dch --newversion "$(VERSION)" \
 	    --maintmaint \
 	    --controlmaint \
@@ -26,7 +27,7 @@ set-version:
 	    --vendor "" \
 	    --force-distribution \
 	    "$(RELEASEMSG)" \
-	    -- \
+		-- \
 	    --author "$(NAME) <$(EMAIL)>"
 
 build-deb: settings.yaml
