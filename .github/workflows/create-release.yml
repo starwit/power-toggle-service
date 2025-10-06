@@ -53,7 +53,7 @@ jobs:
         run: |
           RELEASE_MSG=$(git log -1 --pretty=%B)
           echo "RELEASE_MSG=$RELEASE_MSG" >> $GITHUB_ENV
-          make set-version
+          bash -c "export RELEASEMSG=${RELEASE_MSG}; make set-version"
 
       - name: commit new version
         run: |
