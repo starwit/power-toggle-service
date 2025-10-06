@@ -49,10 +49,11 @@ jobs:
         env:
           VERSION: ${{ inputs.versionChoice }}
 
-      - name: get last commit message
+      - name: get last commit message and update APT changelog
         run: |
           RELEASE_MSG=$(git log -1 --pretty=%B)
           echo "RELEASE_MSG=$RELEASE_MSG" >> $GITHUB_ENV
+          make set-version
 
       - name: commit new version
         run: |
@@ -73,7 +74,7 @@ jobs:
       - name: build apt package
         run: |
             echo "Build APT package"
-            bash -c "poetry self add poetry-plugin-export;export RELEASEMSG=${RELEASE_MSG}; make build-deb"
+            bash -c "poetry self add poetry-plugin-export; make build-deb"
             echo "Finish building APT package"
 
       - name: Create github release

@@ -1,4 +1,4 @@
-.PHONY: install build-deb clean
+.PHONY: install set-version build-deb clean
 
 export PACKAGE_NAME=power-toggle-switch
 RELEASEMSG = ${RELEASE_MSG}
@@ -29,7 +29,7 @@ set-version:
 	    -- \
 	    --author "$(NAME) <$(EMAIL)>"
 
-build-deb: settings.yaml set-version
+build-deb: settings.yaml
 
 	poetry export --without-hashes --format=requirements.txt > requirements.txt
 

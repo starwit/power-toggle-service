@@ -50,4 +50,5 @@ jobs:
             echo "Build APT package"
             bash -c "poetry self add poetry-plugin-export; export RELEASEMSG=PR-Build; make build-deb"
             echo "Finish building APT package"
+            cat debian/changelog
 
