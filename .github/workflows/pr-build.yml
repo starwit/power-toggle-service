@@ -35,6 +35,7 @@ jobs:
 
   apt-build:
     name: package APT
+    needs: pr-build-poetry
     runs-on: [self-hosted, linux, X64]
     container:
         image: starwitorg/debian-packaging:0.0.3
