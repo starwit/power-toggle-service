@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-export PYBUILD_NAME=power-toggle-switch
+export PYBUILD_NAME=msu-manager
 export PYBUILD_DISABLE=test
 export DH_VERBOSE=1
 
@@ -13,8 +13,8 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	dh_auto_install
-	# Install the power-toggle-switch package to the correct location
-	mkdir -p debian/power-toggle-switch/usr/lib/python3/dist-packages/
+	# Install the msu-manager package to the correct location
+	mkdir -p debian/msu-manager/usr/lib/python3/dist-packages/
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

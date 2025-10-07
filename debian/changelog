@@ -1,16 +1,16 @@
-power-toggle-switch (0.1.0) unstable; urgency=medium
+msu-manager (0.1.0) unstable; urgency=medium
 
   *  --author Build Bot <foss@starwit.de>
 
  -- Markus Zarbock <foss@starwit.de>  Mon, 06 Oct 2025 15:05:42 +0000
 
-power-toggle-switch (0.0.7) unstable; urgency=medium
+msu-manager (0.0.7) unstable; urgency=medium
 
   *  --author Build Bot <foss@starwit.de>
 
  -- Markus Zarbock <foss@starwit.de>  Mon, 06 Oct 2025 10:06:46 +0000
 
-power-toggle-switch (0.0.1) unstable; urgency=medium
+msu-manager (0.0.1) unstable; urgency=medium
 
   * Initial release.
 

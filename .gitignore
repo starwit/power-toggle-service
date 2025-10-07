@@ -9,3 +9,4 @@ target
 dist
 .env
 env.sh
+.python-version
