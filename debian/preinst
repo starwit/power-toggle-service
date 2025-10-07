@@ -1,15 +1,15 @@
 #!/bin/bash
 
-mkdir -p /etc/power-toggle-switch
-mkdir -p /opt/power-toggle-switch
+mkdir -p /etc/msu-manager
+mkdir -p /opt/msu-manager
 
-useradd -M powertoggle
-usermod -L powertoggle
+useradd -M msumanager
+usermod -L msumanager
 
 mkdir -p /etc/sudoers.d
 
-cat <<EOF >/etc/sudoers.d/power-toggle-switch
-powertoggle ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot, /sbin/poweroff
+cat <<EOF >/etc/sudoers.d/msu-manager
+msumanager ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot, /sbin/poweroff
 EOF
 
-chmod 440 /etc/sudoers.d/power-toggle-switch
+chmod 440 /etc/sudoers.d/msu-manager

@@ -1,6 +1,6 @@
 from enum import Enum
 import json
-from power_toggle_switch.config import PowerToggleConfig
+from msu_manager.config import PowerToggleConfig
 import logging
 
 class State(str, Enum):

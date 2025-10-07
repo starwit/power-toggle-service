@@ -3,8 +3,8 @@ import signal
 import socket
 import threading
 import subprocess
-from power_toggle_switch.config import PowerToggleConfig
-from power_toggle_switch.power_state import PowerState, State
+from msu_manager.config import PowerToggleConfig
+from msu_manager.power_state import PowerState, State
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "power-toggle-switch"
+name = "msu-manager"
 version = "0.1.0"
 package-mode = false
-description = "A power toggle service"
+description = "MSU management component"
 authors = ["ztarbug <foss@starwit.de>"]
 license = "MIT"
 readme = "README.md"

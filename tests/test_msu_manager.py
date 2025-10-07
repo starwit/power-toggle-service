@@ -1,5 +1,5 @@
 import pytest
-from power_toggle_switch.config import PowerToggleConfig
+from msu_manager.config import PowerToggleConfig
 
 def test_config():
     CONFIG = PowerToggleConfig()

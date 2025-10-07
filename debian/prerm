@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-SERVICE_NAME=power-toggle-switch
+SERVICE_NAME=msu-manager
 
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
 
@@ -26,7 +26,7 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
     rm -rf /etc/$SERVICE_NAME
 
     # remove user
-    userdel powertoggle
+    userdel msumanager
 
     # remove visudo file
     rm -f /etc/sudoers.d/$SERVICE_NAME

@@ -3,7 +3,7 @@ In this document, you'll find all information to run and to use Power Toggle Ser
 
 ## Configuration
 
-After installation config file of service is located at /etc/power-toggle-switch/settings.yaml. Here is an example of configuration file:
+After installation config file of service is located at /etc/msu-manager/settings.yaml. Here is an example of configuration file:
 
 ```yaml
 log_level: INFO
@@ -14,7 +14,7 @@ shutdown_timeout: 180 # shutdown delay in seconds
 
 To see if service is running use the following command:
 ```bash
-systemctl status power-toggle-service
+systemctl status msu-manager
 ```
 
 Please refer to SystemD documentation for more info, on how to use services, e.g. https://wiki.archlinux.org/title/Systemd

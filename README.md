@@ -1,9 +1,9 @@
-# Power Toggle Service
-A simple service to toggle power state of a device. 
+# MSU Manager Service
+This components manages various aspects for Mobilytix Sensoring Units among which are power and thermal management.
 
 ## Usage
 
-Service is shipped as APT package, see [release](https://github.com/starwit/power-toggle-service/releases) page to download latest package. How to configure and use service see [manual](doc/MANUAL.md).
+Service is shipped as APT package, see [release](https://github.com/starwit/msu-manager/releases) page to download latest package. How to configure and use service see [manual](doc/MANUAL.md).
 
 ## Build
 
@@ -26,7 +26,7 @@ make build-deb
 APT package can then be found in folder _target_. You can test installation using Docker, however SystemD (probably) won't work.
 ```bash
 docker run -it --rm -v ./target:/app  jrei/systemd-ubuntu:latest bash
-apt update && apt install -y /app/power-toggle-switch_0.0.7_all.deb
+apt update && apt install -y /app/msu-manager_0.0.7_all.deb
 ```
 You can however test, if everything is installed to the right place. If you want to test service use the following command to trigger power off:
 ```bash

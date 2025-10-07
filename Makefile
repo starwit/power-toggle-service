@@ -1,6 +1,6 @@
 .PHONY: install set-version build-deb clean
 
-export PACKAGE_NAME=power-toggle-switch
+export PACKAGE_NAME=msu-manager
 RELEASEMSG = ${RELEASE_MSG}
 
 EMAIL      := foss@starwit.de

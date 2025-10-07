@@ -1,0 +1,14 @@
+[Unit]
+Description=MSU Manager
+After=network.target
+
+[Service]
+Type=simple
+User=msumanager
+WorkingDirectory=/opt/msu-manager
+ExecStart=/usr/local/bin/msu-manager
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,7 @@
-settings.yaml /etc/power-toggle-switch
-main.py /opt/power-toggle-switch
+settings.yaml /etc/msu-manager
+main.py /opt/msu-manager
 
-requirements.txt /opt/power-toggle-switch
-power_toggle_switch /opt/power-toggle-switch
+requirements.txt /opt/msu-manager
+msu_manager /opt/msu-manager
 
-debian/power-toggle-switch.service /usr/lib/systemd/system/
+debian/msu-manager.service /usr/lib/systemd/system/
