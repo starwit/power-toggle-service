@@ -19,11 +19,36 @@ systemctl status msu-manager
 
 Please refer to SystemD documentation for more info, on how to use services, e.g. https://wiki.archlinux.org/title/Systemd
 
-## Network Messages
-Following example shows, how a shutdown message is supposed to look like:
+## Network Protocol
+This application receives UDP messages from MSU Controller. This is a micro controller based device, that manages power, temperature and a number of other physical aspects. Both application parts thus need to follow a shared protocol.
+
+Protocol is composed of the following messages:
 
 ```json
 {
-    "state": "shutdown"
+    "command": "SHUTDOWN"
+}
+
+{
+    "command": "RESUME"
+}
+
+{
+    "command": "HEARTBEAT",
+    "version" : "0.0.3"
+}
+
+{
+    "command": "LOG",
+    "values": [
+        {
+            "key": "temp1",
+            "value" : "42,0"
+        },
+        {
+            "key": "temp2",
+            "value" : "42,0"
+        }
+    ]
 }
 ```

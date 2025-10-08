@@ -4,7 +4,7 @@ import socket
 import threading
 import subprocess
 from msu_manager.config import PowerToggleConfig
-from msu_manager.power_state import PowerState, State
+from msu_manager.application_state import ApplicationState, PowerState
 
 logger = logging.getLogger(__name__)
 
@@ -13,15 +13,14 @@ def run_stage():
     logging.basicConfig(level=CONFIG.log_level.value, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger.setLevel(CONFIG.log_level.value)
     
-    power_state = PowerState(CONFIG, logger)
+    app_state = ApplicationState(CONFIG, logger)
 
     stop_event = threading.Event()
-
-    # Register signal handlers
+    # Catch termination signals to ensure graceful shutdown
     def sig_handler(signum, _):
         signame = signal.Signals(signum).name
         print(f'Caught signal {signame} ({signum}). Exiting...')
-        power_state.set_state(State.NORMAL)
+        app_state.set_power_state(PowerState.NORMAL)
         stop_event.set()
 
     signal.signal(signal.SIGTERM, sig_handler)
@@ -36,19 +35,19 @@ def run_stage():
             try:
                 data, addr = sock.recvfrom(1024)
                 logger.debug(f"Received message: {data.decode('utf-8')} from {addr}")
-                power_state.process_message(data.decode('utf-8'))
-                if power_state.get_state() == State.SHUTDOWN:
+                app_state.process_message(data.decode('utf-8'))
+                if app_state.get_power_state() == PowerState.SHUTDOWN:
                     logger.info("Shutting down in %s seconds", CONFIG.shutdown_delay)
                     threading.Timer(CONFIG.shutdown_delay, lambda: stop_event.set()).start()
             except socket.timeout:
                 continue  # Check stop_event again
-        shutdown_server(power_state)
+        shutdown_server(app_state)
     finally:
         sock.close()
         
-def shutdown_server(power_state):
-    if power_state.get_state() == State.NORMAL:
+def shutdown_server(app_state):
+    if app_state.get_power_state() == PowerState.NORMAL:
         logger.info("Stop service without powering off server")
-    if power_state.get_state() == State.SHUTDOWN:
+    if app_state.get_power_state() == PowerState.SHUTDOWN:
         logger.info("Powering off server")
         subprocess.run(["sudo", "shutdown", "-h", "+1"])

@@ -28,7 +28,10 @@ APT package can then be found in folder _target_. You can test installation usin
 docker run -it --rm -v ./target:/app  jrei/systemd-ubuntu:latest bash
 apt update && apt install -y /app/msu-manager_0.0.7_all.deb
 ```
-You can however test, if everything is installed to the right place. If you want to test service use the following command to trigger power off:
+You can however test, if everything is installed to the right place. If you want to test service use the following examples:
 ```bash
-echo -n '{"state": "shutdown"}' | nc -4u -q1 vm.ip.address 5151
+echo -n '{"command": "HEARTBEAT","version" : "0.0.3"}' | nc -4u -q1 localhost 5151
+echo -n '{"command": "LOG", "key": "temperature", "value": "42.0"}' | nc -4u -q1 localhost 5151
+echo -n '{"command": "SHUTDOWN"}' | nc -4u -q1 localhost 5151
+echo -n '{"command": "RESUME"}' | nc -4u -q1 localhost 5151
 ```
