@@ -24,6 +24,7 @@ source .venv/bin/activate
 python main.py "\$@"
 cd $current_dir
 EOF
+    chmod +x /usr/bin/lte-connect.sh
     chmod +x /usr/local/bin/$SERVICE_NAME    
 
     # link settings file from etc
