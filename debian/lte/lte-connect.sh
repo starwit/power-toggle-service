@@ -39,7 +39,7 @@ function wait_for_modem_ready() {
         echo "Current modem state: $state"
         if [[ "$state" == "registered" || "$state" == "enabled" || "$state" == "connected" ]]; then
             echo "Modem is ready."
-            break
+            return
         fi
         sleep 2
     done
@@ -105,6 +105,8 @@ if ! is_mbim_driver_active; then
     echo "MBIM driver is not active, rebinding modem."
     rebind_modem
     wait_for_modem_hardware
+else
+    echo "MBIM driver is active."
 fi
 
 reset_modem
