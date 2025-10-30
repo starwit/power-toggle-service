@@ -5,6 +5,16 @@ DEVICE_ID="1bbb:00b6"
 
 APN="internet.telekom"
 
+function check_connection() {
+    echo "Checking connection"
+    if ping -c 4 -W 1 1.1.1.1 >/dev/null; then
+        echo "✅ Connection check successful!"
+        return 0
+    else
+        echo "❌ Connection check failed!"
+        return 1
+    fi
+}
 
 function wait_for_modem_hardware() {
     # waiting until USB modem appears
@@ -20,6 +30,13 @@ function reset_modem() {
 }
 
 echo "=== LTE Connect Script Starting ==="
+
+# Check if we already have a connection
+if check_connection; then
+    echo "Already connected, exiting."
+    exit 0
+fi
+
 reset_modem
 wait_for_modem_hardware
 
@@ -105,11 +122,5 @@ resolvectl dns $BEARER_IFACE $BEARER_DNS
 echo "Setting default IP route"
 ip route add default via $BEARER_GW
 
-echo "Checking connection"
-if ping -c 4 -W 1 1.1.1.1 >/dev/null; then
-    echo "✅ Connection check successful!"
-    exit 0
-else
-    echo "❌ Connection check failed!"
-    exit 1
-fi
+check_connection
+exit $?
