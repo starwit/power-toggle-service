@@ -19,11 +19,47 @@ function check_connection() {
 }
 
 function wait_for_modem_hardware() {
-    # waiting until USB modem appears
-    echo "Waiting for modem"
-    until mmcli -m any &>/dev/null; do
+    echo "Waiting for modem to register..."
+    for i in {1..10}; do
+        echo "Checking for modem (attempt $i)..."
+        if mmcli -m any &>/dev/null; then
+            echo "Modem detected."
+            return
+        fi
         sleep 2
     done
+    echo "Modem not detected. Giving up."
+    exit 1
+}
+
+function wait_for_modem_ready() {
+    # Wait for the modem to be ready
+    for i in {1..10}; do
+        state=$(get_modem_state)
+        echo "Current modem state: $state"
+        if [[ "$state" == "registered" || "$state" == "enabled" || "$state" == "connected" ]]; then
+            echo "Modem is ready."
+            break
+        fi
+        sleep 2
+    done
+    echo "Modem is not ready. Giving up."
+    exit 1
+}
+
+function wait_for_modem_connected() {
+    # Wait for the modem to be connected
+    for i in {1..30}; do
+        state=$(get_modem_state)
+        echo "Current modem state: $state"
+        if [ "$state" == "connected" ]; then
+            echo "✅ Modem is registered to network."
+            return
+        fi
+        sleep 2
+    done
+    echo "Modem failed to connect. Giving up."
+    exit 1
 }
 
 function reset_modem() {
@@ -48,6 +84,10 @@ function get_usb_id() {
 
 function get_modem_id() {
     mmcli -m any -J | jq -r '.modem."dbus-path"' | grep -Po '\d+$'
+}
+
+function get_modem_state() {
+    mmcli -m any -J | jq -r '.modem.generic.state'
 }
 
 echo "=== LTE Connect Script Starting ==="
@@ -80,17 +120,7 @@ echo "Using modem with id $MODEM_ID"
 echo "=== LTE Connect enable modem ==="
 mmcli -m $MODEM_ID -e
 
-# Wait for the modem to be ready
-for i in {1..10}; do
-    state=$(mmcli -m $MODEM_ID -J | jq -r '.modem.generic.state')
-    echo "Current modem state: $state"
-    if [[ "$state" == "registered" || "$state" == "enabled" || "$state" == "connected" ]]; then
-        echo "Modem is enabled."
-        break
-    fi
-    echo "Waiting for modem to initialize..."
-    sleep 2
-done
+wait_for_modem_ready
 
 echo "=== LTE Connect modem enabled ==="
 
@@ -100,17 +130,7 @@ mmcli -m $MODEM_ID --simple-connect="apn=$APN,ip-type=ipv4,allow-roaming=true" |
     exit 1
 }
 
-# Wait for network registration
-for i in {1..30}; do
-    state=$( mmcli -m $MODEM_ID --output-json | jq -r '.modem.generic.state' )
-    echo "Current modem state: $state"
-    if [ "$state" == "connected" ]; then
-        echo "✅ Modem is registered to network."
-        break
-    fi
-    echo "Waiting for network registration..."
-    sleep 3
-done
+wait_for_modem_connected
 
 echo "=== LTE Connect connection established ==="
 
