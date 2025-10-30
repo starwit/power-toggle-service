@@ -27,8 +27,27 @@ function wait_for_modem_hardware() {
 }
 
 function reset_modem() {
-    echo "Resetting modem"
+    echo "Resetting modem $DEVICE_ID"
     usbreset "$DEVICE_ID"
+}
+
+function rebind_modem() {
+    USB_PATH=$(get_usb_id)
+    echo "Rebinding modem at USB path $USB_PATH"
+    echo "$USB_PATH" > /sys/bus/usb/drivers/usb/unbind
+    echo "$USB_PATH" > /sys/bus/usb/drivers/usb/bind
+}
+
+function is_mbim_driver_active() {
+    mmcli -m any -J | jq -e '.modem.generic.drivers[] | select(. == "cdc_mbim")' >/dev/null 2>&1
+}
+
+function get_usb_id() {
+    mmcli -m any -J | jq -r '.modem.device' | grep -Po '[0-9\-]+$'
+}
+
+function get_modem_id() {
+    mmcli -m any -J | jq -r '.modem."dbus-path"' | grep -Po '\d+$'
 }
 
 echo "=== LTE Connect Script Starting ==="
@@ -39,6 +58,15 @@ if check_connection; then
     exit 0
 fi
 
+wait_for_modem_hardware
+
+# Check if mbim driver has been loaded
+if ! is_mbim_driver_active; then
+    echo "MBIM driver is not active, rebinding modem."
+    rebind_modem
+    wait_for_modem_hardware
+fi
+
 reset_modem
 wait_for_modem_hardware
 
@@ -46,7 +74,7 @@ echo "=== LTE Connect modem connected ==="
 mmcli -m any
 
 # get modem number
-MODEM_ID=$(mmcli -m any -J | jq -r '.modem."dbus-path"' | grep -Po '\d+$')
+MODEM_ID=$(get_modem_id)
 echo "Using modem with id $MODEM_ID"
 
 echo "=== LTE Connect enable modem ==="
@@ -61,7 +89,7 @@ for i in {1..10}; do
         break
     fi
     echo "Waiting for modem to initialize..."
-    sleep 3
+    sleep 2
 done
 
 echo "=== LTE Connect modem enabled ==="
