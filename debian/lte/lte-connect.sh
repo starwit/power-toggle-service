@@ -5,9 +5,11 @@ DEVICE_ID="1bbb:00b6"
 
 APN="internet.telekom"
 
+WWAN_IFACE="wwan0"
+
 function check_connection() {
-    echo "Checking connection"
-    if ping -c 4 -W 1 1.1.1.1 >/dev/null; then
+    echo "Checking connection on $WWAN_IFACE"
+    if ping -c 4 -W 1 -I $WWAN_IFACE 1.1.1.1 >/dev/null; then
         echo "✅ Connection check successful!"
         return 0
     else
@@ -93,7 +95,6 @@ mmcli -b $BEARER_ID
 
 BEARER_IP=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".address' )
 BEARER_GW=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".gateway' )
-BEARER_IFACE=$( mmcli -b $BEARER_ID -J | jq -r '.bearer.status.interface' )
 BEARER_IP_PREFIX=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".prefix' )
 BEARER_DNS=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".dns | join (" ")' )
 
@@ -101,23 +102,22 @@ echo "Using IP info from bearer:"
 echo "BEARER_IP: $BEARER_IP"
 echo "BEARER_GW: $BEARER_GW"
 echo "BEARER_IP_PREFIX: $BEARER_IP_PREFIX"
-echo "BEARER_IFACE: $BEARER_IFACE"
 echo "BEARER_DNS: $BEARER_DNS"
 
-if [[ -z "$BEARER_IP" || -z "$BEARER_GW" || -z "$BEARER_IP_PREFIX" || -z "$BEARER_IFACE" || -z "$BEARER_DNS" ]]; then
+if [[ -z "$BEARER_IP" || -z "$BEARER_GW" || -z "$BEARER_IP_PREFIX" || -z "$BEARER_DNS" ]]; then
     echo "❌ No valid IP info — aborting."
     exit 1
 fi
 
-echo "Setting up $BEARER_IFACE..."
+echo "Setting up $WWAN_IFACE..."
 
-# Configure interface                                                                                                                                                                                                                                                                                                       
-ip addr flush dev $BEARER_IFACE
-ip link set $BEARER_IFACE up
-ip addr add $BEARER_IP/$BEARER_IP_PREFIX dev $BEARER_IFACE
+# Configure interface
+ip addr flush dev $WWAN_IFACE
+ip link set $WWAN_IFACE up
+ip addr add $BEARER_IP/$BEARER_IP_PREFIX dev $WWAN_IFACE
 
 echo "Setting DNS servers"
-resolvectl dns $BEARER_IFACE $BEARER_DNS
+resolvectl dns $WWAN_IFACE $BEARER_DNS
 
 echo "Setting default IP route"
 ip route add default via $BEARER_GW
