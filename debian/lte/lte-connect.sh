@@ -43,7 +43,7 @@ function is_mbim_driver_active() {
 }
 
 function get_usb_id() {
-    mmcli -m any -J | jq -r '.modem.device' | grep -Po '[0-9\-]+$'
+    mmcli -m any -J | jq -r '.modem.generic.device' | grep -Po '[0-9\-]+$'
 }
 
 function get_modem_id() {
