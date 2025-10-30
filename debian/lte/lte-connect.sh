@@ -1,63 +1,41 @@
 #!/bin/bash
 
+# Use lsusb to find the device id ("vendor:product")
+DEVICE_ID="1bbb:00b6"
+
+APN="internet.telekom"
+
+
 function wait_for_modem_hardware() {
     # waiting until USB modem appears
-    echo "Waiting for modem to appear..."
+    echo "Waiting for modem"
     until mmcli -m any &>/dev/null; do
         sleep 2
     done
 }
 
-function rebind_usb() {
-    # Wait for modem firmware to settle
-    sleep 10
-
-    DEVPATH="3-5"
-
-    # Reload relevant USB drivers
-    modprobe -r cdc_ether cdc_ncm option || true
-    sleep 1
-    modprobe cdc_ether cdc_ncm option || true
-
-    # Rebind the USB device
-    if [ -e "/sys/bus/usb/drivers/usb/$DEVPATH" ]; then
-    echo "$DEVPATH" | tee /sys/bus/usb/drivers/usb/unbind
-    sleep 1
-    echo "$DEVPATH" | tee /sys/bus/usb/drivers/usb/bind
-    fi
-
-    # Give it a few seconds to settle
-    sleep 5
-
-    systemctl restart ModemManager
-
-    # Trigger ModemManager rescan
-    /usr/bin/mmcli --scan-modems
+function reset_modem() {
+    echo "Resetting modem"
+    usbreset "$DEVICE_ID"
 }
 
-
 echo "=== LTE Connect Script Starting ==="
-rebind_usb
+reset_modem
 wait_for_modem_hardware
 
 echo "=== LTE Connect modem connected ==="
 mmcli -m any
 
 # get modem number
-IFS='/ ' read -r _ _ _ mm _ mn mt < <(mmcli -L)
-echo "using modem number $mn"
-
-APN="internet.telekom"
-MODEM=$mn
-IFACE="wwan0"
+MODEM_ID=$(mmcli -m any -J | jq -r '.modem."dbus-path"' | grep -Po '\d+$')
+echo "Using modem with id $MODEM_ID"
 
 echo "=== LTE Connect enable modem ==="
-mmcli -m $MODEM -e
-sleep 3
+mmcli -m $MODEM_ID -e
 
 # Wait for the modem to be ready
 for i in {1..10}; do
-    state=$(mmcli -m $MODEM --output-json | jq -r '.modem.generic.state')
+    state=$(mmcli -m $MODEM_ID -J | jq -r '.modem.generic.state')
     echo "Current modem state: $state"
     if [[ "$state" == "registered" || "$state" == "enabled" || "$state" == "connected" ]]; then
         echo "Modem is enabled."
@@ -69,30 +47,17 @@ done
 
 echo "=== LTE Connect modem enabled ==="
 
-# Double check data ports exist
-if ! mmcli -m $MODEM | grep -q "ports:"; then
-    echo "No data port found — trying to re-enable modem..."
-    mmcli -m $MODEM -d
-    sleep 2
-    mmcli -m $MODEM -e
-    sleep 5
-fi
-
-echo "=== LTE Connect modem dataport detected ==="
-
 echo "Connecting to APN $APN..."
-mmcli -m $MODEM --simple-connect="apn=$APN,ip-type=ipv4,allow-roaming=true" || {
+mmcli -m $MODEM_ID --simple-connect="apn=$APN,ip-type=ipv4,allow-roaming=true" || {
     echo "Failed to connect modem."
     exit 1
 }
 
-echo "=== LTE Connect connect modem ==="
-
 # Wait for network registration
 for i in {1..30}; do
-    state=$(mmcli -m $MODEM --output-json | jq -r '.modem.generic.state')
+    state=$( mmcli -m $MODEM_ID --output-json | jq -r '.modem.generic.state' )
     echo "Current modem state: $state"
-    if [ $state == "registered" ] || [ $state == "connected" ]; then
+    if [ "$state" == "connected" ]; then
         echo "✅ Modem is registered to network."
         break
     fi
@@ -100,46 +65,51 @@ for i in {1..30}; do
     sleep 3
 done
 
+echo "=== LTE Connect connection established ==="
+
 sleep 1
 # Fetch bearer info
-echo "==== getting bearer number ===="                                                                                                                           │       valid_lft forever preferred_lft forever
-bearer=$(mmcli -m $MODEM --output-json | jq --raw-output -r '.modem.generic.bearers.[0]')
-BEARER=${bearer: -1}
-echo "using bearer $BEARER"
+BEARER_ID=$( mmcli -m $MODEM_ID -J | jq -r '.modem.generic.bearers[0]' | grep -Po '\d+$' )
 
-echo "==== getting bearer info ===="
-mmcli -b $BEARER 2>/dev/null
-info=$(mmcli -b $BEARER 2>/dev/null)
-IP=$(echo "$info" | awk '/address:/{print $3}')
-GW=$(echo "$info" | awk '/gateway:/{print $3}')
-PREFIX=$(echo "$info" | awk '/prefix:/{print $3}')                                                                                                                                                                                                                                                                           
+echo "Using bearer with id $BEARER_ID"
+mmcli -b $BEARER_ID
 
-# retry getting values
-if [[ -z "$IP" || -z "$GW" || -z "$PREFIX" ]]; then
-    echo "Failed to get IP/gateway/prefix. Waiting 5s and retrying..."
-    sleep 5
-    info=$(mmcli -b $BEARER 2>/dev/null)
-    IP=$(echo "$info" | awk '/address:/{print $3}')
-    GW=$(echo "$info" | awk '/gateway:/{print $3}')
-    PREFIX=$(echo "$info" | awk '/prefix:/{print $3}')
-fi
+BEARER_IP=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".address' )
+BEARER_GW=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".gateway' )
+BEARER_IFACE=$( mmcli -b $BEARER_ID -J | jq -r '.bearer.status.interface' )
+BEARER_IP_PREFIX=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".prefix' )
+BEARER_DNS=$( mmcli -b $BEARER_ID -J | jq -r '.bearer."ipv4-config".dns | join (" ")' )
 
-if [[ -z "$IP" || -z "$GW" || -z "$PREFIX" ]]; then
-    echo "❌ Still no valid IP info — aborting."
-    echo "$info"
+echo "Using IP info from bearer:"
+echo "BEARER_IP: $BEARER_IP"
+echo "BEARER_GW: $BEARER_GW"
+echo "BEARER_IP_PREFIX: $BEARER_IP_PREFIX"
+echo "BEARER_IFACE: $BEARER_IFACE"
+echo "BEARER_DNS: $BEARER_DNS"
+
+if [[ -z "$BEARER_IP" || -z "$BEARER_GW" || -z "$BEARER_IP_PREFIX" || -z "$BEARER_IFACE" || -z "$BEARER_DNS" ]]; then
+    echo "❌ No valid IP info — aborting."
     exit 1
 fi
 
-# get DNS servers
-DNS1=$(mmcli -b 1 --output-json | jq --raw-output -r '.bearer.["ipv4-config"].dns[0]')
-DNS2=$(mmcli -b 1 --output-json | jq --raw-output -r '.bearer.["ipv4-config"].dns[1]')
-
-
-echo "Assigning IP ${IP}/${PREFIX}, gateway ${GW}, and DNS ${DNS1} / ${DNS2} to ${IFACE}..."
+echo "Setting up $BEARER_IFACE..."
 
 # Configure interface                                                                                                                                                                                                                                                                                                       
-ip addr flush dev $IFACE
-ip link set $IFACE up
-ip addr add ${IP}/${PREFIX} dev $IFACE
-ip route add default via ${GW} || echo "Warning: Route already exists"
-resolvectl dns $IFACE $DNS1 $DNS2
+ip addr flush dev $BEARER_IFACE
+ip link set $BEARER_IFACE up
+ip addr add $BEARER_IP/$BEARER_IP_PREFIX dev $BEARER_IFACE
+
+echo "Setting DNS servers"
+resolvectl dns $BEARER_IFACE $BEARER_DNS
+
+echo "Setting default IP route"
+ip route add default via $BEARER_GW
+
+echo "Checking connection"
+if ping -c 4 -W 1 1.1.1.1 >/dev/null; then
+    echo "✅ Connection check successful!"
+    exit 0
+else
+    echo "❌ Connection check failed!"
+    exit 1
+fi
