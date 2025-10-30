@@ -20,7 +20,7 @@ function check_connection() {
 
 function wait_for_modem_hardware() {
     echo "Waiting for modem to register..."
-    for i in {1..10}; do
+    for i in {1..20}; do
         echo "Checking for modem (attempt $i)..."
         if mmcli -m any &>/dev/null; then
             echo "Modem detected."
