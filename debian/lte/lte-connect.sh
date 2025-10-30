@@ -1,11 +1,44 @@
 #!/bin/bash
 
+function wait_for_modem_hardware() {
+    # waiting until USB modem appears
+    echo "Waiting for modem to appear..."
+    until mmcli -m any &>/dev/null; do
+        sleep 2
+    done
+}
+
+function rebind_usb() {
+    # Wait for modem firmware to settle
+    sleep 10
+
+    DEVPATH="3-5"
+
+    # Reload relevant USB drivers
+    modprobe -r cdc_ether cdc_ncm option || true
+    sleep 1
+    modprobe cdc_ether cdc_ncm option || true
+
+    # Rebind the USB device
+    if [ -e "/sys/bus/usb/drivers/usb/$DEVPATH" ]; then
+    echo "$DEVPATH" | tee /sys/bus/usb/drivers/usb/unbind
+    sleep 1
+    echo "$DEVPATH" | tee /sys/bus/usb/drivers/usb/bind
+    fi
+
+    # Give it a few seconds to settle
+    sleep 5
+
+    systemctl restart ModemManager
+
+    # Trigger ModemManager rescan
+    /usr/bin/mmcli --scan-modems
+}
+
+
 echo "=== LTE Connect Script Starting ==="
-# waiting until USB modem appears
-echo "Waiting for modem to appear..."
-until mmcli -m any &>/dev/null; do
-    sleep 2
-done
+rebind_usb
+wait_for_modem_hardware
 
 echo "=== LTE Connect modem connected ==="
 mmcli -m any
@@ -16,10 +49,6 @@ echo "using modem number $mn"
 
 APN="internet.telekom"
 MODEM=$mn
-
-bearer=$(mmcli -m $MODEM --output-json | jq --raw-output -r '.modem.generic.bearers.[0]')
-BEARER=${bearer: -1}
-echo "using bearer $BEARER"
 IFACE="wwan0"
 
 echo "=== LTE Connect enable modem ==="
@@ -73,15 +102,23 @@ done
 
 sleep 1
 # Fetch bearer info
-info=$(mmcli -b $BEARER 2>/dev/null || true)
+echo "==== getting bearer number ===="                                                                                                                           │       valid_lft forever preferred_lft forever
+bearer=$(mmcli -m $MODEM --output-json | jq --raw-output -r '.modem.generic.bearers.[0]')
+BEARER=${bearer: -1}
+echo "using bearer $BEARER"
+
+echo "==== getting bearer info ===="
+mmcli -b $BEARER 2>/dev/null
+info=$(mmcli -b $BEARER 2>/dev/null)
 IP=$(echo "$info" | awk '/address:/{print $3}')
 GW=$(echo "$info" | awk '/gateway:/{print $3}')
 PREFIX=$(echo "$info" | awk '/prefix:/{print $3}')                                                                                                                                                                                                                                                                           
-# Validate values
+
+# retry getting values
 if [[ -z "$IP" || -z "$GW" || -z "$PREFIX" ]]; then
     echo "Failed to get IP/gateway/prefix. Waiting 5s and retrying..."
     sleep 5
-    info=$(mmcli -b $BEARER)
+    info=$(mmcli -b $BEARER 2>/dev/null)
     IP=$(echo "$info" | awk '/address:/{print $3}')
     GW=$(echo "$info" | awk '/gateway:/{print $3}')
     PREFIX=$(echo "$info" | awk '/prefix:/{print $3}')
@@ -93,12 +130,16 @@ if [[ -z "$IP" || -z "$GW" || -z "$PREFIX" ]]; then
     exit 1
 fi
 
-echo "Assigning IP ${IP}/${PREFIX}, gateway ${GW} to ${IFACE}..."
+# get DNS servers
+DNS1=$(mmcli -b 1 --output-json | jq --raw-output -r '.bearer.["ipv4-config"].dns[0]')
+DNS2=$(mmcli -b 1 --output-json | jq --raw-output -r '.bearer.["ipv4-config"].dns[1]')
+
+
+echo "Assigning IP ${IP}/${PREFIX}, gateway ${GW}, and DNS ${DNS1} / ${DNS2} to ${IFACE}..."
 
 # Configure interface                                                                                                                                                                                                                                                                                                       
-
-ip addr flush dev $IFACE || true
+ip addr flush dev $IFACE
 ip link set $IFACE up
 ip addr add ${IP}/${PREFIX} dev $IFACE
 ip route add default via ${GW} || echo "Warning: Route already exists"
-
+resolvectl dns $IFACE $DNS1 $DNS2
