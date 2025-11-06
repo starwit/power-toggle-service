@@ -6,6 +6,7 @@ from typing import Tuple
 from fastapi import FastAPI, status
 
 from .config import MsuManagerConfig
+from .model import validate_json_message
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,8 +23,15 @@ class MsuControllerProtocol(asyncio.DatagramProtocol):
         logger.info(f'Started MsuProtocol UDP listener on {app.state.CONFIG.udp_bind_address}:{app.state.CONFIG.udp_listen_port}')
 
     def datagram_received(self, data: bytes, addr: Tuple[str, int]) -> None:
-        # asyncio.create_task(send_info_to_client(ws_client, data))
-        pass
+        logger.debug(f'Received UDP packet from {addr}: {data}')
+
+        try:
+            text = data.decode('utf-8')
+        except UnicodeDecodeError:
+            logger.error(f'Failed to decode UDP packet from {addr}: not valid UTF-8')
+            return
+
+        logger.debug(f'Received command: {validate_json_message(text).model_dump_json(indent=2)}')
 
 
 @asynccontextmanager

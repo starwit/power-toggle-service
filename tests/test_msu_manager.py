@@ -3,4 +3,4 @@ from msu_manager.config import MsuManagerConfig
 
 def test_config():
     CONFIG = MsuManagerConfig()
-    assert CONFIG.udp_port != None
+    assert CONFIG.udp_listen_port != None

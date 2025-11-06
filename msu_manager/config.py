@@ -57,7 +57,6 @@ class LogLevel(str, Enum):
 
 class MsuManagerConfig(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
-    server_port: int = 8000
     udp_bind_address: str = '0.0.0.0'
     udp_listen_port: int = 8001
     shutdown_delay: int = 180  # in seconds
