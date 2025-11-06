@@ -1,6 +1,6 @@
 import pytest
-from msu_manager.config import PowerToggleConfig
+from msu_manager.config import MsuManagerConfig
 
 def test_config():
-    CONFIG = PowerToggleConfig()
+    CONFIG = MsuManagerConfig()
     assert CONFIG.udp_port != None

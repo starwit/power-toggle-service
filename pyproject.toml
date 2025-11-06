@@ -13,6 +13,7 @@ pydantic = "^2.11.10"
 pydantic-settings = "^2.0.3"
 pyaml = "^25.7.0"
 pytest = "8.4.2"
+fastapi = {extras = ["standard"], version = "^0.121.0"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.1"

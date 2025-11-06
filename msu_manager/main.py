@@ -1,0 +1,54 @@
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+from typing import Tuple
+
+from fastapi import FastAPI, status
+
+from .config import MsuManagerConfig
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
+
+
+class MsuControllerProtocol(asyncio.DatagramProtocol):
+    def connection_made(self, transport: asyncio.DatagramTransport) -> None:
+        self.transport = transport
+        logger.info(f'Started MsuProtocol UDP listener on {app.state.CONFIG.udp_bind_address}:{app.state.CONFIG.udp_listen_port}')
+
+    def datagram_received(self, data: bytes, addr: Tuple[str, int]) -> None:
+        # asyncio.create_task(send_info_to_client(ws_client, data))
+        pass
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # This (until yield) is run before startup
+    CONFIG = MsuManagerConfig()
+    app.state.CONFIG = CONFIG
+    logger.info(f'Effective configuration: {CONFIG.model_dump_json(indent=2)}')
+
+    logging.getLogger().setLevel(app.state.CONFIG.log_level.value)
+
+    loop = asyncio.get_running_loop()
+    transport, protocol = await loop.create_datagram_endpoint(
+        lambda: MsuControllerProtocol(), local_addr=(CONFIG.udp_bind_address, CONFIG.udp_listen_port)
+    )
+    app.state.udp_transport = transport
+    app.state.udp_protocol = protocol
+
+    yield
+
+    # This is run after shutdown
+    app.state.udp_transport.close()
+
+app = FastAPI(lifespan=lifespan)
+
+@app.get('/health', status_code=status.HTTP_204_NO_CONTENT)
+def health():
+    pass

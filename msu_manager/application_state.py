@@ -1,6 +1,6 @@
 from enum import Enum
 import json
-from msu_manager.config import PowerToggleConfig
+from msu_manager.config import MsuManagerConfig
 import logging
 
 class ProtocolCommands(str, Enum):
@@ -14,7 +14,7 @@ class PowerState(str, Enum):
     SHUTDOWN = 'SHUTDOWN'
 
 class ApplicationState():
-    def __init__(self, config: PowerToggleConfig, logger: logging.Logger):
+    def __init__(self, config: MsuManagerConfig, logger: logging.Logger):
         self.config = config
         self.power_state: PowerState = PowerState.NORMAL
         self.logger = logger

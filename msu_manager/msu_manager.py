@@ -3,32 +3,17 @@ import signal
 import socket
 import threading
 import subprocess
-from msu_manager.config import PowerToggleConfig
+from msu_manager.config import MsuManagerConfig
 from msu_manager.application_state import ApplicationState, PowerState
 
 logger = logging.getLogger(__name__)
 
 def run_stage():
-    CONFIG = PowerToggleConfig()
     logging.basicConfig(level=CONFIG.log_level.value, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger.setLevel(CONFIG.log_level.value)
     
     app_state = ApplicationState(CONFIG, logger)
 
-    stop_event = threading.Event()
-    # Catch termination signals to ensure graceful shutdown
-    def sig_handler(signum, _):
-        signame = signal.Signals(signum).name
-        print(f'Caught signal {signame} ({signum}). Exiting...')
-        app_state.set_power_state(PowerState.NORMAL)
-        stop_event.set()
-
-    signal.signal(signal.SIGTERM, sig_handler)
-    signal.signal(signal.SIGINT, sig_handler)
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((CONFIG.bind_address, CONFIG.udp_port))
-    sock.settimeout(1.0)  # 1 second timeout
 
     try:
         while not stop_event.is_set():
