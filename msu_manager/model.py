@@ -1,46 +1,41 @@
 from enum import StrEnum
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Union, List
 
 from pydantic import BaseModel, Field, TypeAdapter
 
 
 class CommandType(StrEnum):
-    START = "start"
-    STOP = "stop"
-    STATUS = "status"
-    CONFIG = "config"
+    SHUTDOWN = "shutdown"
+    HEARTBEAT = "heartbeat"
+    LOG = "log"
 
 
-class StartCommand(BaseModel):
-    command: Literal[CommandType.START]
-    target_id: str
-    params: dict | None = None
+class ShutdownCommand(BaseModel):
+    command: Literal[CommandType.SHUTDOWN]
 
 
-class StopCommand(BaseModel):
-    command: Literal[CommandType.STOP]
-    target_id: str
-    force: bool = False
+class HeartbeatCommand(BaseModel):
+    command: Literal[CommandType.HEARTBEAT]
+    version: str | None = None
 
 
-class StatusCommand(BaseModel):
-    command: Literal[CommandType.STATUS]
-    target_id: str | None = None
+class LogEntry(BaseModel):
+    timestamp: str | None
+    level: str | None
+    message: str
 
 
-class ConfigCommand(BaseModel):
-    command: Literal[CommandType.CONFIG]
-    key: str
-    value: str | int | bool
+class LogCommand(BaseModel):
+    command: Literal[CommandType.LOG]
+    entries: List[LogEntry]
 
 
 # Discriminated union using the 'command' field
 MsuControllerMessage = Annotated[
     Union[
-        StartCommand,
-        StopCommand,
-        StatusCommand,
-        ConfigCommand,
+        ShutdownCommand,
+        HeartbeatCommand,
+        LogCommand
     ],
     Field(discriminator='command')
 ]
