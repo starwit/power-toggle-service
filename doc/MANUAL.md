@@ -1,17 +1,27 @@
 # Power Toggle Service User's Manual
-In this document, you'll find all information to run and to use Power Toggle Service.
+In this document, you'll find all information to run and to use MSU-Manager.
 
-## Configuration
+## App Configuration
 
 After installation config file of service is located at /etc/msu-manager/settings.yaml. Here is an example of configuration file:
 
 ```yaml
 log_level: INFO
-bind_address: 0.0.0.0 # bind address for service
-udp_port: 5151 # port for listener
-shutdown_timeout: 180 # shutdown delay in seconds
+udp_bind_address: 0.0.0.0 # bind address for service
+udp_listen_port: 5151 # port for listener
+shutdown_delay_s: 180 # shutdown delay in seconds
+shutdown_command: ['sudo', 'shutdown', '-h', 'now'] # be careful if you want to test on your machine
+```
+## OS Configuration
+In order to allow service to execute shutdown command without password prompt using sudo, you need to add following line to sudoers file. You can add and edit a sudoers file using visudo command.
+
+```
+sudo visudo -f /etc/sudoers.d/msu-manager
+# Add the following line
+# msu-manager ALL=NOPASSWD: /usr/sbin/shutdown -h now
 ```
 
+## Managing the Service
 To see if service is running use the following command:
 ```bash
 systemctl status msu-manager
@@ -40,15 +50,7 @@ Protocol is composed of the following messages:
 
 {
     "command": "LOG",
-    "values": [
-        {
-            "key": "temp1",
-            "value" : "42,0"
-        },
-        {
-            "key": "temp2",
-            "value" : "42,0"
-        }
-    ]
+    "key": "key",
+    "value": "value"
 }
 ```
