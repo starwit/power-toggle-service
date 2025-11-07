@@ -1,13 +1,13 @@
 from enum import StrEnum
-from typing import Annotated, Literal, Union, List
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field, TypeAdapter
 
 
 class CommandType(StrEnum):
-    SHUTDOWN = "shutdown"
-    HEARTBEAT = "heartbeat"
-    LOG = "log"
+    SHUTDOWN = "SHUTDOWN"
+    HEARTBEAT = "HEARTBEAT"
+    LOG = "LOG"
 
 
 class ShutdownCommand(BaseModel):
@@ -19,15 +19,10 @@ class HeartbeatCommand(BaseModel):
     version: str | None = None
 
 
-class LogEntry(BaseModel):
-    timestamp: str | None
-    level: str | None
-    message: str
-
-
 class LogCommand(BaseModel):
     command: Literal[CommandType.LOG]
-    entries: List[LogEntry]
+    key: str
+    value: str
 
 
 # Discriminated union using the 'command' field
