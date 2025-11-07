@@ -9,7 +9,7 @@ usermod -L msumanager
 mkdir -p /etc/sudoers.d
 
 cat <<EOF >/etc/sudoers.d/msu-manager
-msumanager ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot, /sbin/poweroff
+msumanager ALL= NOPASSWD: /usr/sbin/shutdown -h now
 EOF
 
 chmod 440 /etc/sudoers.d/msu-manager

@@ -13,12 +13,13 @@ shutdown_delay_s: 180 # shutdown delay in seconds
 shutdown_command: ['sudo', 'shutdown', '-h', 'now'] # be careful if you want to test on your machine
 ```
 ## OS Configuration
+_This should have been set up by the installation script._
 In order to allow service to execute shutdown command without password prompt using sudo, you need to add following line to sudoers file. You can add and edit a sudoers file using visudo command.
 
 ```
 sudo visudo -f /etc/sudoers.d/msu-manager
 # Add the following line
-# msu-manager ALL=NOPASSWD: /usr/sbin/shutdown -h now
+# msumanager ALL=NOPASSWD: /usr/sbin/shutdown -h now
 ```
 
 ## Managing the Service
