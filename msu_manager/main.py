@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
 
     logging.getLogger().setLevel(app.state.CONFIG.log_level.value)
 
-    controller = Controller()
+    controller = Controller(CONFIG.shutdown_command, CONFIG.shutdown_delay_s)
     app.state.controller = controller
 
     loop = asyncio.get_running_loop()

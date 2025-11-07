@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import yaml
 from pydantic import BaseModel, Field
@@ -59,7 +59,8 @@ class MsuManagerConfig(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
     udp_bind_address: str = '0.0.0.0'
     udp_listen_port: int = 8001
-    shutdown_delay: int = 180  # in seconds
+    shutdown_delay_s: int = 180
+    shutdown_command: List[str]
 
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')
