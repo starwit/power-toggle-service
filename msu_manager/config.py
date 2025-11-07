@@ -55,12 +55,24 @@ class LogLevel(str, Enum):
     INFO = 'INFO'
     DEBUG = 'DEBUG'
 
-class MsuManagerConfig(BaseSettings):
-    log_level: LogLevel = LogLevel.INFO
+
+class UplinkMonitorConfig(BaseModel):
+    restore_connection_cmd: List[str]
+    check_connection_cmd: List[str]
+    check_interval_s: int = 10
+
+
+class MsuAgentConfig(BaseModel):
     udp_bind_address: str = '0.0.0.0'
     udp_listen_port: int = 8001
     shutdown_delay_s: int = 180
     shutdown_command: List[str]
+
+
+class MsuManagerConfig(BaseSettings):
+    log_level: LogLevel = LogLevel.INFO
+    msu_agent: MsuAgentConfig = MsuAgentConfig()
+    uplink_monitor: UplinkMonitorConfig = UplinkMonitorConfig()
 
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')
