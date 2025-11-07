@@ -6,8 +6,8 @@ from fastapi import FastAPI, status
 
 from .config import MsuManagerConfig
 from .controller import Controller
-from .model import MsuControllerMessage
-from .protocols import MsuControllerProtocol
+from .controller.messages import MsuControllerMessage
+from .controller import MsuControllerProtocol
 
 logging.basicConfig(
     level=logging.INFO,

@@ -1,7 +1,8 @@
-import logging
 import asyncio
-from .model import (HeartbeatCommand, LogCommand, MsuControllerMessage,
-                    ShutdownCommand)
+import logging
+
+from .messages import (HeartbeatCommand, LogCommand, MsuControllerMessage,
+                       ShutdownCommand)
 
 logger = logging.getLogger(__name__)
 

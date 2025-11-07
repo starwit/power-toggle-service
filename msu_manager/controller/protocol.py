@@ -4,8 +4,8 @@ import logging
 from json import JSONDecodeError
 from typing import Tuple
 
-from ..controller import Controller
-from ..model import validate_python_message
+from .controller import Controller
+from .messages import validate_python_message
 
 logger = logging.getLogger(__name__)
 
