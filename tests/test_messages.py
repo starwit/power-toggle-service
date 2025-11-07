@@ -1,7 +1,7 @@
 from pydantic_core import ValidationError
 
 from msu_manager.controller.messages import (HeartbeatCommand, LogCommand,
-                                             ShutdownCommand,
+                                             ResumeCommand, ShutdownCommand,
                                              validate_json_message,
                                              validate_python_message)
 
@@ -12,6 +12,13 @@ def test_shutdown_command_parsing():
     })
     assert isinstance(m, ShutdownCommand)
     assert m.command == 'SHUTDOWN'
+
+def test_resume_command_parsing():
+    m = validate_python_message({
+        'command': 'RESUME' 
+    })
+    assert isinstance(m, ResumeCommand)
+    assert m.command == 'RESUME'
 
 def test_heartbeat_command_parsing():
     m = validate_python_message({

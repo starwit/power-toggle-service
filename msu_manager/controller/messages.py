@@ -6,12 +6,17 @@ from pydantic import BaseModel, Field, TypeAdapter
 
 class CommandType(StrEnum):
     SHUTDOWN = "SHUTDOWN"
+    RESUME = "RESUME"
     HEARTBEAT = "HEARTBEAT"
     LOG = "LOG"
 
 
 class ShutdownCommand(BaseModel):
     command: Literal[CommandType.SHUTDOWN]
+
+
+class ResumeCommand(BaseModel):
+    command: Literal[CommandType.RESUME]
 
 
 class HeartbeatCommand(BaseModel):
@@ -29,6 +34,7 @@ class LogCommand(BaseModel):
 MsuControllerMessage = Annotated[
     Union[
         ShutdownCommand,
+        ResumeCommand,
         HeartbeatCommand,
         LogCommand
     ],
