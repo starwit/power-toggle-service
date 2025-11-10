@@ -41,11 +41,7 @@ async def before_startup(app: FastAPI):
         logger.info(f'Started MsuProtocol UDP listener on {controller_bind_address}:{controller_listen_port}')
 
     if CONFIG.uplink_monitor.enabled:
-        uplink_monitor = UplinkMonitor(
-            restore_connection_cmd=CONFIG.uplink_monitor.restore_connection_cmd,
-            check_connection_target=CONFIG.uplink_monitor.check_connection_target,
-            check_interval_s=CONFIG.uplink_monitor.check_interval_s,
-        )
+        uplink_monitor = UplinkMonitor(CONFIG.uplink_monitor)
         app.state.uplink_monitor = uplink_monitor
         app.state.uplink_monitor_task = asyncio.create_task(uplink_monitor.run())
 

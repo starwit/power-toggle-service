@@ -3,13 +3,21 @@ import logging
 import asyncio
 from typing import List, Tuple, Tuple
 
+from ..config import UplinkMonitorConfig
+
 logger = logging.getLogger(__name__)
 
 class UplinkMonitor:
-    def __init__(self, restore_connection_cmd: List[str], check_connection_target: str, check_interval_s: int):
-        self.restore_connection_cmd = restore_connection_cmd
-        self.check_connection_cmd = ['ping', '-c', '1', '-W', '0.5', check_connection_target]
-        self.check_interval_s = check_interval_s
+    def __init__(self, config: UplinkMonitorConfig):
+        self._restore_connection_cmd = config.restore_connection_cmd
+        self._check_connection_cmd = [
+            'ping',
+            '-c', '1',
+            '-W', '0.5',
+            *(['-I', config.check_connection_device] if config.check_connection_device else []),
+            config.check_connection_target,
+        ]
+        self._check_interval_s = config.check_interval_s
 
     async def run(self):
         try:
@@ -23,7 +31,7 @@ class UplinkMonitor:
                         logger.info("Connection restored successfully.")
                     else:
                         logger.error("Failed to restore connection.")
-                await asyncio.sleep(self.check_interval_s)
+                await asyncio.sleep(self._check_interval_s)
         except asyncio.CancelledError:
             logger.info("UplinkMonitor task cancelled.")
             raise
@@ -31,23 +39,23 @@ class UplinkMonitor:
             logger.error(f"Unexpected error occurred in UplinkMonitor", exc_info=True)
 
     async def check_connection(self) -> bool:
-        ret_code, stdout, stderr = await self._run_command(self.check_connection_cmd)
+        ret_code, stdout, stderr = await self._run_command(self._check_connection_cmd)
 
         if ret_code == 0:
             return True
         else:
-            logger.error(f'Connection check failed. Output of {" ".join(self.check_connection_cmd)}')
+            logger.error(f'Connection check failed. Output of {" ".join(self._check_connection_cmd)}')
             logger.error(f"STDOUT: {stdout}")
             logger.error(f"STDERR: {stderr}")
             return False
 
     async def restore_connection(self) -> bool:
-        ret_code, stdout, stderr = await self._run_command(self.restore_connection_cmd)
+        ret_code, stdout, stderr = await self._run_command(self._restore_connection_cmd)
 
         if ret_code == 0:
             return True
         else:
-            logger.error(f"Failed to restore connection. Output of {' '.join(self.restore_connection_cmd)}")
+            logger.error(f"Failed to restore connection. Output of {' '.join(self._restore_connection_cmd)}")
             logger.error(f"STDOUT: {stdout}")
             logger.error(f"STDERR: {stderr}")
             return False

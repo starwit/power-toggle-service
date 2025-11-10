@@ -2,6 +2,7 @@ from typing import Dict, List
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch, Mock
+from msu_manager.config import UplinkMonitorConfig
 from msu_manager.uplink.monitor import UplinkMonitor
 
 
@@ -9,9 +10,12 @@ from msu_manager.uplink.monitor import UplinkMonitor
 def uplink_monitor():
     """Create a UplinkMonitor instance for testing."""
     return UplinkMonitor(
-        restore_connection_cmd=['./restore'],
-        check_connection_target='8.8.8.8',
-        check_interval_s=5
+        config=UplinkMonitorConfig(
+            enabled=True,
+            restore_connection_cmd=['./restore'],
+            check_connection_target='8.8.8.8',
+            check_interval_s=5
+        )
     )
 
 def create_mock_process(returncode, stdout=b'', stderr=b''):
@@ -75,7 +79,7 @@ async def test_run_connection_down_restore_success(uplink_monitor, monkeypatch):
     # ping fails (1), restore succeeds (0), ping succeeds twice (0)
     mock_subprocess = create_mock_subprocess_sequence({
         'ping': [1, 0, 0],
-        './restore': [1]
+        './restore': [0]
     })
     monkeypatch.setattr(asyncio, 'create_subprocess_exec', mock_subprocess)
     
