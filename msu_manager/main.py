@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, status
 from .config import MsuManagerConfig
 from .controller import Controller, MsuControllerProtocol
 from .controller.messages import MsuControllerMessage
+from .uplink.monitor import UplinkMonitor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,14 +35,32 @@ async def before_startup(app: FastAPI):
         transport, protocol = await loop.create_datagram_endpoint(
             lambda: MsuControllerProtocol(controller=controller), local_addr=(controller_bind_address, controller_listen_port)
         )
-        logger.info(f'Started MsuProtocol UDP listener on {controller_bind_address}:{controller_listen_port}')
-
         app.state.controller_transport = transport
         app.state.controller_protocol = protocol
+
+        logger.info(f'Started MsuProtocol UDP listener on {controller_bind_address}:{controller_listen_port}')
+
+    if CONFIG.uplink_monitor.enabled:
+        uplink_monitor = UplinkMonitor(
+            restore_connection_cmd=CONFIG.uplink_monitor.restore_connection_cmd,
+            check_connection_target=CONFIG.uplink_monitor.check_connection_target,
+            check_interval_s=CONFIG.uplink_monitor.check_interval_s,
+        )
+        app.state.uplink_monitor = uplink_monitor
+        app.state.uplink_monitor_task = asyncio.create_task(uplink_monitor.run())
+
+        logger.info('Started UplinkMonitor')
 
 async def after_shutdown(app: FastAPI):
     if app.state.CONFIG.msu_controller.enabled:
         app.state.controller_transport.close()
+
+    if app.state.CONFIG.uplink_monitor.enabled:
+        app.state.uplink_monitor_task.cancel()
+        try:
+            await app.state.uplink_monitor_task
+        except asyncio.CancelledError:
+            pass
     
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -1,0 +1,45 @@
+import pytest
+from msu_manager.config import MsuManagerConfig
+
+def test_full_config():
+    CONFIG = MsuManagerConfig.model_validate_json('''
+    {
+        "log_level": "INFO",
+        "msu_controller": {
+            "enabled": true,
+            "udp_bind_address": "0.0.0.0",
+            "udp_listen_port": 8001,
+            "shutdown_delay_s": 180,
+            "shutdown_command": ["touch", "/tmp/shutdown_executed"]
+        },
+        "uplink_monitor": {
+            "enabled": true,
+            "restore_connection_cmd": ["echo", "Restoring connection"],
+            "check_connection_target": "1.1.1.1",
+            "check_interval_s": 10
+        }
+    }
+    ''')
+    assert CONFIG.msu_controller.udp_listen_port == 8001
+    assert CONFIG.uplink_monitor.check_interval_s == 10
+
+def test_explicit_feature_disable():
+    CONFIG = MsuManagerConfig.model_validate_json('''
+    {
+        "msu_controller": {
+            "enabled": false
+        },
+        "uplink_monitor": {
+            "enabled": false
+        }
+    }
+    ''')
+    assert CONFIG.msu_controller.enabled is False
+    assert CONFIG.uplink_monitor.enabled is False
+
+def test_implicit_feature_disable():
+    CONFIG = MsuManagerConfig.model_validate_json('''
+    {}
+    ''')
+    assert CONFIG.msu_controller.enabled is False
+    assert CONFIG.uplink_monitor.enabled is False

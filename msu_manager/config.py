@@ -59,7 +59,7 @@ class LogLevel(str, Enum):
 class UplinkMonitorConfig(BaseModel):
     enabled: Literal[True]
     restore_connection_cmd: List[str]
-    check_connection_cmd: List[str]
+    check_connection_target: str
     check_interval_s: int = 10
 
 

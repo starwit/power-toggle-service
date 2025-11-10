@@ -6,25 +6,37 @@ from typing import List, Tuple, Tuple
 logger = logging.getLogger(__name__)
 
 class UplinkMonitor:
-    def __init__(self, restore_connection_cmd: List[str], check_connection_cmd: List[str], check_interval_s: int):
+    def __init__(self, restore_connection_cmd: List[str], check_connection_target: str, check_interval_s: int):
         self.restore_connection_cmd = restore_connection_cmd
-        self.check_connection_cmd = check_connection_cmd
+        self.check_connection_cmd = ['ping', '-c', '1', '-W', '0.5', check_connection_target]
         self.check_interval_s = check_interval_s
-        self.connection_up = False
 
     async def run(self):
-        while True:
-            # Monitoring logic here
-            await asyncio.sleep(self.check_interval_s)
+        try:
+            while True:
+                is_up = await self.check_connection()
+                logger.debug(f'Connection status: {"up" if is_up else "down"}')
+                if not is_up:
+                    logger.warning("Connection is down, attempting to restore...")
+                    success = await self.restore_connection()
+                    if success:
+                        logger.info("Connection restored successfully.")
+                    else:
+                        logger.error("Failed to restore connection.")
+                await asyncio.sleep(self.check_interval_s)
+        except asyncio.CancelledError:
+            logger.info("UplinkMonitor task cancelled.")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error occurred in UplinkMonitor", exc_info=True)
 
     async def check_connection(self) -> bool:
         ret_code, stdout, stderr = await self._run_command(self.check_connection_cmd)
 
         if ret_code == 0:
-            logger.info("Connection is up.")
             return True
         else:
-            logger.error("Connection is down.")
+            logger.error(f'Connection check failed. Output of {" ".join(self.check_connection_cmd)}')
             logger.error(f"STDOUT: {stdout}")
             logger.error(f"STDERR: {stderr}")
             return False
@@ -33,10 +45,9 @@ class UplinkMonitor:
         ret_code, stdout, stderr = await self._run_command(self.restore_connection_cmd)
 
         if ret_code == 0:
-            logger.info("Connection restored successfully.")
             return True
         else:
-            logger.error(f"Failed to restore connection")
+            logger.error(f"Failed to restore connection. Output of {' '.join(self.restore_connection_cmd)}")
             logger.error(f"STDOUT: {stdout}")
             logger.error(f"STDERR: {stderr}")
             return False
