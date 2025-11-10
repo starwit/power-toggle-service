@@ -1,10 +1,12 @@
 log_level: INFO
-msu_agent:
+msu_controller:
+  enabled: true
   udp_bind_address: 0.0.0.0
   udp_listen_port: 8001
   shutdown_delay_s: 180
   shutdown_command: ['touch', '/tmp/shutdown_executed'] # Don't shut down your computer
 uplink_monitor:
+  enabled: true
   restore_connection_cmd: ['echo', 'Restoring connection']
   check_connection_cmd: ['ping', '-c', '1', '8.8.8.8']
   check_interval_s: 10

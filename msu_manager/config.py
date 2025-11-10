@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -57,22 +57,32 @@ class LogLevel(str, Enum):
 
 
 class UplinkMonitorConfig(BaseModel):
+    enabled: Literal[True]
     restore_connection_cmd: List[str]
     check_connection_cmd: List[str]
     check_interval_s: int = 10
 
 
-class MsuAgentConfig(BaseModel):
+class UplinkMonitorConfigDisabled(BaseModel):
+    enabled: Literal[False] = False
+
+
+class MsuControllerConfig(BaseModel):
+    enabled: Literal[True]
     udp_bind_address: str = '0.0.0.0'
     udp_listen_port: int = 8001
     shutdown_delay_s: int = 180
     shutdown_command: List[str]
 
 
+class MsuControllerConfigDisabled(BaseModel):
+    enabled: Literal[False] = False
+
+
 class MsuManagerConfig(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
-    msu_agent: MsuAgentConfig = MsuAgentConfig()
-    uplink_monitor: UplinkMonitorConfig = UplinkMonitorConfig()
+    msu_controller: MsuControllerConfig | MsuControllerConfigDisabled = Field(discriminator='enabled', default=MsuControllerConfigDisabled())
+    uplink_monitor: UplinkMonitorConfig | UplinkMonitorConfigDisabled = Field(discriminator='enabled', default=UplinkMonitorConfigDisabled())
 
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')

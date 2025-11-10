@@ -2,12 +2,11 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 
 from .config import MsuManagerConfig
-from .controller import Controller
+from .controller import Controller, MsuControllerProtocol
 from .controller.messages import MsuControllerMessage
-from .controller import MsuControllerProtocol
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,23 +24,25 @@ async def before_startup(app: FastAPI):
 
     logging.getLogger().setLevel(app.state.CONFIG.log_level.value)
 
-    controller = Controller(CONFIG.msu_agent.shutdown_command, CONFIG.msu_agent.shutdown_delay_s)
-    app.state.controller = controller
+    if CONFIG.msu_controller.enabled:
+        controller = Controller(CONFIG.msu_controller.shutdown_command, CONFIG.msu_controller.shutdown_delay_s)
+        app.state.controller = controller
 
-    agent_bind_address = CONFIG.msu_agent.udp_bind_address
-    agent_listen_port = CONFIG.msu_agent.udp_listen_port
-    loop = asyncio.get_running_loop()
-    transport, protocol = await loop.create_datagram_endpoint(
-        lambda: MsuControllerProtocol(controller=controller), local_addr=(agent_bind_address, agent_listen_port)
-    )
-    logger.info(f'Started MsuProtocol UDP listener on {agent_bind_address}:{agent_listen_port}')
+        controller_bind_address = CONFIG.msu_controller.udp_bind_address
+        controller_listen_port = CONFIG.msu_controller.udp_listen_port
+        loop = asyncio.get_running_loop()
+        transport, protocol = await loop.create_datagram_endpoint(
+            lambda: MsuControllerProtocol(controller=controller), local_addr=(controller_bind_address, controller_listen_port)
+        )
+        logger.info(f'Started MsuProtocol UDP listener on {controller_bind_address}:{controller_listen_port}')
 
-    app.state.udp_transport = transport
-    app.state.udp_protocol = protocol
+        app.state.controller_transport = transport
+        app.state.controller_protocol = protocol
 
 async def after_shutdown(app: FastAPI):
-    app.state.udp_transport.close()
-
+    if app.state.CONFIG.msu_controller.enabled:
+        app.state.controller_transport.close()
+    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await before_startup(app)
@@ -54,7 +55,11 @@ app = FastAPI(lifespan=lifespan)
 async def health():
     pass
 
-@app.post('/command', status_code=status.HTTP_204_NO_CONTENT)
+@app.post('/controller/command', status_code=status.HTTP_204_NO_CONTENT, responses={404: {}})
 async def command_endpoint(command: MsuControllerMessage):
     logger.info(f'Received {type(command).__name__} via HTTP: {command.model_dump_json(indent=2)}')
+    if not app.state.CONFIG.msu_controller.enabled:
+        logger.warning('MsuController is disabled; ignoring command')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='MsuController is disabled')
+
     await app.state.controller.process_command(command)
