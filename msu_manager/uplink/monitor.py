@@ -45,8 +45,10 @@ class UplinkMonitor:
             return True
         else:
             logger.error(f'Connection check failed. Output of {" ".join(self._check_connection_cmd)}')
-            logger.error(f"STDOUT: {stdout}")
-            logger.error(f"STDERR: {stderr}")
+            logger.error(f"STDOUT:")
+            logger.error(f"{stdout}")
+            logger.error(f"STDERR:")
+            logger.error(f"{stderr}")
             return False
 
     async def restore_connection(self) -> bool:
@@ -56,8 +58,10 @@ class UplinkMonitor:
             return True
         else:
             logger.error(f"Failed to restore connection. Output of {' '.join(self._restore_connection_cmd)}")
-            logger.error(f"STDOUT: {stdout}")
-            logger.error(f"STDERR: {stderr}")
+            logger.error(f"STDOUT:")
+            logger.error(f"{stdout}")
+            logger.error(f"STDERR:")
+            logger.error(f"{stderr}")
             return False
 
     async def _run_command(self, command: List[str]) -> Tuple[int, str, str]:
