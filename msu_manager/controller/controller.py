@@ -49,7 +49,7 @@ class Controller:
             try:
                 await self._shutdown_task
             except asyncio.CancelledError:
-                # Task cancellation is the expected signal to exit the loop here; no action needed.
+                # Task cancellation is expected here as we've called cancel()
                 pass
             self._shutdown_task = None
         
