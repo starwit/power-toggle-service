@@ -1,7 +1,7 @@
 from typing import Dict, List
 import pytest
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch, Mock
+from unittest.mock import AsyncMock
 from msu_manager.config import UplinkMonitorConfig
 from msu_manager.uplink.monitor import UplinkMonitor
 
