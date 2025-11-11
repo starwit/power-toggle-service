@@ -21,7 +21,7 @@ current_dir=$PWD
 cd /opt/$SERVICE_NAME
 source .venv/bin/activate
 
-python main.py "\$@"
+fastapi run msu_manager/main.py "\$@"
 cd $current_dir
 EOF
     chmod +x /usr/bin/lte-connect.sh

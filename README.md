@@ -1,6 +1,13 @@
 # MSU Manager Service
 This components manages various aspects for Mobilytix Sensoring Units among which are power and thermal management.
 
+## Local Development
+To run the application manually you can use Poetry:
+```bash
+poetry install
+poetry run fastapi run msu_manager/main.py
+```
+
 ## Usage
 
 Service is shipped as APT package, see [release](https://github.com/starwit/msu-manager/releases) page to download latest package. How to configure and use service see [manual](doc/MANUAL.md).

@@ -1,5 +1,4 @@
 settings.yaml /etc/msu-manager
-main.py /opt/msu-manager
 
 requirements.txt /opt/msu-manager
 msu_manager /opt/msu-manager
