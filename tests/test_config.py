@@ -15,13 +15,15 @@ def test_full_config(monkeypatch):
         "uplink_monitor": {
             "enabled": true,
             "restore_connection_cmd": ["echo", "Restoring connection"],
+            "wwan_device": "test_wwan",
+            "wwan_usb_id": "1234:5678",
+            "wwan_apn": "test_apn",
             "check_connection_target": "1.1.1.1",
             "check_connection_device": "eth0",
             "check_interval_s": 10
         }
     }
     ''')
-    print(CONFIG.model_dump_json(indent=2))
     assert CONFIG.msu_controller.udp_listen_port == 8001
     assert CONFIG.uplink_monitor.check_interval_s == 10
 
@@ -36,7 +38,6 @@ def test_explicit_feature_disable():
         }
     }
     ''')
-    print(CONFIG.model_dump_json(indent=2))
     assert CONFIG.msu_controller.enabled == False
     assert CONFIG.uplink_monitor.enabled == False
 
@@ -44,6 +45,5 @@ def test_implicit_feature_disable(monkeypatch):
     CONFIG = MsuManagerConfig.model_validate_json('''
     { }
     ''')
-    print(CONFIG.model_dump_json(indent=2))
     assert CONFIG.msu_controller.enabled == False
     assert CONFIG.uplink_monitor.enabled == False

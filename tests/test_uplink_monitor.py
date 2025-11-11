@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch, Mock
 from msu_manager.config import UplinkMonitorConfig
 from msu_manager.uplink.monitor import UplinkMonitor
 
-
 @pytest.fixture
 def uplink_monitor():
     """Create a UplinkMonitor instance for testing."""
@@ -13,6 +12,9 @@ def uplink_monitor():
         config=UplinkMonitorConfig(
             enabled=True,
             restore_connection_cmd=['./restore'],
+            wwan_device='test_wwan',
+            wwan_usb_id='1234:5678',
+            wwan_apn='test_apn',
             check_connection_target='8.8.8.8',
             check_interval_s=5
         )
@@ -88,9 +90,13 @@ async def test_run_connection_down_restore_success(uplink_monitor, monkeypatch):
     with pytest.raises(asyncio.CancelledError):
         await uplink_monitor.run()
 
+    # Verify the sequence of commands executed
     assert [
         'ping',
         './restore',
         'ping',
         'ping'
     ] == [call.args[0] for call in mock_subprocess.mock_calls]
+
+    # Verify that restore command was called with correct env
+    assert mock_subprocess.mock_calls[1].kwargs['env'] == {'WWAN_IFACE': 'test_wwan', 'DEVICE_ID': '1234:5678', 'APN': 'test_apn'}

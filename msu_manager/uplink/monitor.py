@@ -1,7 +1,7 @@
 
 import logging
 import asyncio
-from typing import List, Tuple, Tuple
+from typing import Dict, List, Tuple
 
 from ..config import UplinkMonitorConfig
 
@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 class UplinkMonitor:
     def __init__(self, config: UplinkMonitorConfig):
         self._restore_connection_cmd = config.restore_connection_cmd
+        self._restore_connection_env = {
+            'WWAN_IFACE': config.wwan_device,
+            'DEVICE_ID': config.wwan_usb_id,
+            'APN': config.wwan_apn,
+        }
         self._check_connection_cmd = [
             'ping',
             '-c', '1',
@@ -52,7 +57,7 @@ class UplinkMonitor:
             return False
 
     async def restore_connection(self) -> bool:
-        ret_code, stdout, stderr = await self._run_command(self._restore_connection_cmd)
+        ret_code, stdout, stderr = await self._run_command(self._restore_connection_cmd, env=self._restore_connection_env)
 
         if ret_code == 0:
             return True
@@ -64,11 +69,12 @@ class UplinkMonitor:
             logger.error(f"{stderr}")
             return False
 
-    async def _run_command(self, command: List[str]) -> Tuple[int, str, str]:
+    async def _run_command(self, command: List[str], env: Dict[str, str] = None) -> Tuple[int, str, str]:
         proc = await asyncio.create_subprocess_exec(
             *command,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            stderr=asyncio.subprocess.PIPE,
+            env=env
         )
         stdout, stderr = await proc.communicate()
         stdout = stdout.decode() if stdout else ''
