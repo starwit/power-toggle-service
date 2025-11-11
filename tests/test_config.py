@@ -1,4 +1,3 @@
-import pytest
 from msu_manager.config import MsuManagerConfig
 
 def test_full_config(monkeypatch):
