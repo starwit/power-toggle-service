@@ -56,6 +56,7 @@ async def after_shutdown(app: FastAPI):
         try:
             await app.state.uplink_monitor_task
         except asyncio.CancelledError:
+            # Task cancellation is expected during shutdown; safe to ignore.
             pass
     
 @asynccontextmanager
