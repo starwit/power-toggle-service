@@ -1,3 +1,4 @@
+import pytest
 from pydantic_core import ValidationError
 
 from msu_manager.controller.messages import (HeartbeatCommand, LogCommand,
@@ -41,14 +42,10 @@ def test_log_command_parsing():
     assert m.value == 'test_value'
 
 def test_invalid_command_parsing():
-    try:
+    with pytest.raises(ValidationError):
         validate_python_message({
             'command': 'invalid_command'
         })
-        assert False, "Expected validation error"
-    except Exception as e:
-        assert isinstance(e, ValidationError)
-        assert "validation error" in str(e)
 
 def test_json_parsing():
     m = validate_json_message('''
