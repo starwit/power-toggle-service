@@ -107,7 +107,7 @@ main() {
 
 check_connection() {
     echo "Checking connection on $WWAN_IFACE"
-    if ping -c 1 -W 0.5 -I $WWAN_IFACE 1.1.1.1 >/dev/null; then
+    if ping -c 3 -w 1 -i 0.2 -I $WWAN_IFACE 1.1.1.1 >/dev/null; then
         echo "✅ Connection check successful!"
         return 0
     else
