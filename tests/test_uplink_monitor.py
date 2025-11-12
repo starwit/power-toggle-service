@@ -98,5 +98,5 @@ async def test_run_connection_down_restore_success(uplink_monitor, monkeypatch):
         'ping'
     ] == [call.args[0] for call in mock_subprocess.mock_calls]
 
-    # Verify that restore command was called with correct env
-    assert mock_subprocess.mock_calls[1].kwargs['env'] == {'WWAN_IFACE': 'test_wwan', 'DEVICE_ID': '1234:5678', 'APN': 'test_apn'}
+    # Verify that restore command was called with correct env (>= means "is superset of")
+    assert mock_subprocess.mock_calls[1].kwargs['env'].items() >= {'WWAN_IFACE': 'test_wwan', 'DEVICE_ID': '1234:5678', 'APN': 'test_apn'}.items()

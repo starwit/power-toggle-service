@@ -1,6 +1,7 @@
 
 import logging
 import asyncio
+import os
 from typing import Dict, List, Tuple
 
 from ..config import UplinkMonitorConfig
@@ -74,7 +75,7 @@ class UplinkMonitor:
             *command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            env=env
+            env={**os.environ, **env} if env else None
         )
         stdout, stderr = await proc.communicate()
         stdout = stdout.decode() if stdout else ''
