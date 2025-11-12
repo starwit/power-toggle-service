@@ -99,7 +99,7 @@ main() {
     resolvectl dns $WWAN_IFACE $BEARER_DNS
 
     echo "Setting default IP route"
-    ip route add default via $BEARER_GW
+    ip route add default via $BEARER_GW metric 500
 
     check_connection
     exit $?

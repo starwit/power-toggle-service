@@ -18,8 +18,9 @@ class UplinkMonitor:
         }
         self._check_connection_cmd = [
             'ping',
-            '-c', '1',
-            '-W', '0.5',
+            '-c', '3',
+            '-w', '1',
+            '-i', '0.2',
             *(['-I', config.check_connection_device] if config.check_connection_device else []),
             config.check_connection_target,
         ]
