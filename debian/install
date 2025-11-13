@@ -1,10 +1,8 @@
 settings.yaml /etc/msu-manager
-main.py /opt/msu-manager
 
 requirements.txt /opt/msu-manager
 msu_manager /opt/msu-manager
 
 debian/msu-manager.service /usr/lib/systemd/system/
 
-debian/lte/lte-connect.service /usr/lib/systemd/system/
 debian/lte/lte-connect.sh /usr/bin/

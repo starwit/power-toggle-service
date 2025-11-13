@@ -1,4 +1,16 @@
 log_level: INFO
-bind_address: 0.0.0.0
-udp_port: 5151
-shutdown_timeout: 180
+hcu_controller:
+  enabled: true
+  udp_bind_address: 0.0.0.0
+  udp_listen_port: 8001
+  shutdown_delay_s: 180                                                             # Delay after having received SHUTDOWN command to executing shutdown (in seconds)
+  shutdown_command: ['sudo', 'shutdown', '-h', 'now']                               # Don't accidentally shut down your computer and use a dummy command like "touch /tmp/shutdown_called" for testing
+uplink_monitor:
+  enabled: true
+  restore_connection_cmd: ["sudo", "/usr/bin/bash", "/usr/bin/lte-connect.sh"]      # Command to restore the connection (use a dummy command like "touch /tmp/restore_called" for testing)
+  wwan_device: 'wwan0'                                                              # WWAN interface name (see mmcli -m any and check System.ports, it's probably wwan0)
+  wwan_usb_id: '1234:5678'                                                          # USB device ID of the WWAN modem (see lsusb)
+  wwan_apn: 'test.apn'                                                              # APN to use for the WWAN connection
+  check_connection_target: '1.1.1.1'                                                # Target to ping for connection checks
+  check_connection_device: 'wwan0'                                                  # Device to use for connection checks (should mostly be the same as wwan_device, null/unset means any uplink will do)
+  check_interval_s: 10

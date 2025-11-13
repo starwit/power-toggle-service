@@ -9,7 +9,9 @@ usermod -L msumanager
 mkdir -p /etc/sudoers.d
 
 cat <<EOF >/etc/sudoers.d/msu-manager
-msumanager ALL=(ALL) NOPASSWD: /sbin/shutdown, /sbin/reboot, /sbin/poweroff
+# Allow msumanager to run shutdown and pass environment variables to lte-connect.sh
+Defaults!/usr/bin/bash env_keep += "DEVICE_ID APN WWAN_IFACE"
+msumanager ALL= NOPASSWD: /usr/sbin/shutdown -h now, /usr/bin/bash /usr/bin/lte-connect.sh
 EOF
 
 chmod 440 /etc/sudoers.d/msu-manager

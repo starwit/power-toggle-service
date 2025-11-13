@@ -1,5 +1,13 @@
 # MSU Manager Service
-This components manages various aspects for Mobilytix Sensoring Units among which are power and thermal management.
+This components manages various aspects for Mobilytix Sensoring Units among which are power and thermal management.\
+One of its core features is receiving commands from the HCU (Hardware Control Unit).
+
+## Local Development
+To run the application manually you can use Poetry:
+```bash
+poetry install
+poetry run fastapi run msu_manager/main.py
+```
 
 ## Usage
 
