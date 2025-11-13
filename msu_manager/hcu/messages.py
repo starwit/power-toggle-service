@@ -31,7 +31,7 @@ class LogCommand(BaseModel):
 
 
 # Discriminated union using the 'command' field
-MsuControllerMessage = Annotated[
+HcuMessage = Annotated[
     Union[
         ShutdownCommand,
         ResumeCommand,
@@ -43,12 +43,12 @@ MsuControllerMessage = Annotated[
 
 
 # Some helper functions for explicitly parsing messages
-_message_adapter = TypeAdapter(MsuControllerMessage)
+_message_adapter = TypeAdapter(HcuMessage)
 
-def validate_python_message(data: dict) -> MsuControllerMessage:
+def validate_python_message(data: dict) -> HcuMessage:
     """Parse and validate a message dictionary into the appropriate command type."""
     return _message_adapter.validate_python(data)
 
-def validate_json_message(data: str) -> MsuControllerMessage:
+def validate_json_message(data: str) -> HcuMessage:
     """Parse and validate a JSON string message into the appropriate command type."""
     return _message_adapter.validate_json(data)

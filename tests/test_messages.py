@@ -1,7 +1,7 @@
 import pytest
 from pydantic_core import ValidationError
 
-from msu_manager.controller.messages import (HeartbeatCommand, LogCommand,
+from msu_manager.hcu.messages import (HeartbeatCommand, LogCommand,
                                              ResumeCommand, ShutdownCommand,
                                              validate_json_message,
                                              validate_python_message)

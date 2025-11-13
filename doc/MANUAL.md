@@ -31,7 +31,7 @@ systemctl status msu-manager
 Please refer to SystemD documentation for more info, on how to use services, e.g. https://wiki.archlinux.org/title/Systemd
 
 ## Network Protocol
-This application receives UDP messages from MSU Controller. This is a micro controller based device, that manages power, temperature and a number of other physical aspects. Both application parts thus need to follow a shared protocol.
+This application receives UDP messages from HCU (Hardware Control Unit). This is a micro controller based device, that manages power, temperature and a number of other physical aspects. Both application parts thus need to follow a shared protocol.
 
 Protocol is composed of the following messages:
 

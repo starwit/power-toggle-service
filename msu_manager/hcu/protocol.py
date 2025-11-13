@@ -4,14 +4,14 @@ import logging
 from json import JSONDecodeError
 from typing import Tuple
 
-from .controller import Controller
+from .controller import HcuController
 from .messages import validate_python_message
 
 logger = logging.getLogger(__name__)
 
 
-class MsuControllerProtocol(asyncio.DatagramProtocol):
-    def __init__(self, controller: Controller = None):
+class HcuProtocol(asyncio.DatagramProtocol):
+    def __init__(self, controller: HcuController = None):
         self._controller = controller
         self._transport = None
         
@@ -34,4 +34,4 @@ class MsuControllerProtocol(asyncio.DatagramProtocol):
             asyncio.create_task(self._controller.process_command(command))
 
     def connection_lost(self, exc):
-        logger.info('MsuProtocol UDP listener stopped', exc_info=exc)
+        logger.info('HcuProtocol UDP listener stopped', exc_info=exc)

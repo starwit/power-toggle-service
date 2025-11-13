@@ -30,7 +30,7 @@ class UplinkMonitorConfigDisabled(BaseModel):
     enabled: Literal[False] = False
 
 
-class MsuControllerConfig(BaseModel):
+class HcuControllerConfig(BaseModel):
     enabled: Literal[True]
     udp_bind_address: str = '0.0.0.0'
     udp_listen_port: int = 8001
@@ -38,13 +38,13 @@ class MsuControllerConfig(BaseModel):
     shutdown_command: List[str]
 
 
-class MsuControllerConfigDisabled(BaseModel):
+class HcuControllerConfigDisabled(BaseModel):
     enabled: Literal[False] = False
 
 
 class MsuManagerConfig(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
-    msu_controller: MsuControllerConfig | MsuControllerConfigDisabled = Field(discriminator='enabled', default=MsuControllerConfigDisabled())
+    hcu_controller: HcuControllerConfig | HcuControllerConfigDisabled = Field(discriminator='enabled', default=HcuControllerConfigDisabled())
     uplink_monitor: UplinkMonitorConfig | UplinkMonitorConfigDisabled = Field(discriminator='enabled', default=UplinkMonitorConfigDisabled())
 
 

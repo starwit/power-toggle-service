@@ -4,7 +4,7 @@ def test_full_config(monkeypatch):
     CONFIG = MsuManagerConfig.model_validate_json('''
     {
         "log_level": "INFO",
-        "msu_controller": {
+        "hcu_controller": {
             "enabled": true,
             "udp_bind_address": "0.0.0.0",
             "udp_listen_port": 8001,
@@ -23,13 +23,13 @@ def test_full_config(monkeypatch):
         }
     }
     ''')
-    assert CONFIG.msu_controller.udp_listen_port == 8001
+    assert CONFIG.hcu_controller.udp_listen_port == 8001
     assert CONFIG.uplink_monitor.check_interval_s == 10
 
 def test_explicit_feature_disable():
     CONFIG = MsuManagerConfig.model_validate_json('''
     {
-        "msu_controller": {
+        "hcu_controller": {
             "enabled": false
         },
         "uplink_monitor": {
@@ -37,12 +37,12 @@ def test_explicit_feature_disable():
         }
     }
     ''')
-    assert CONFIG.msu_controller.enabled == False
+    assert CONFIG.hcu_controller.enabled == False
     assert CONFIG.uplink_monitor.enabled == False
 
 def test_implicit_feature_disable(monkeypatch):
     CONFIG = MsuManagerConfig.model_validate_json('''
     { }
     ''')
-    assert CONFIG.msu_controller.enabled == False
+    assert CONFIG.hcu_controller.enabled == False
     assert CONFIG.uplink_monitor.enabled == False

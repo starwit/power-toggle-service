@@ -2,19 +2,19 @@ import asyncio
 import logging
 from typing import List
 
-from .messages import (HeartbeatCommand, LogCommand, MsuControllerMessage,
+from .messages import (HeartbeatCommand, LogCommand, HcuMessage,
                        ResumeCommand, ShutdownCommand)
 
 logger = logging.getLogger(__name__)
 
 
-class Controller:
+class HcuController:
     def __init__(self, shutdown_command: List[str], shutdown_delay_s: int):
         self.shutdown_command = shutdown_command
         self.shutdown_delay_s = shutdown_delay_s
         self._shutdown_task = None
 
-    async def process_command(self, command: MsuControllerMessage):
+    async def process_command(self, command: HcuMessage):
         logger.info(f'Processing {type(command).__name__}')
         match command:
             case ShutdownCommand():
